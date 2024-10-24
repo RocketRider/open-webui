@@ -2,6 +2,13 @@
 	import { toast } from 'svelte-sonner';
 	import dayjs from 'dayjs';
 
+	import { LangfuseWeb } from "langfuse";
+
+	const langfuseWeb = new LangfuseWeb({
+		publicKey: "pk-lf-1011962c-5f50-4aed-b825-724dd3f9d12a",
+		baseUrl: `http://localhost:3000/`
+	});
+
 	import { createEventDispatcher } from 'svelte';
 	import { onMount, tick, getContext } from 'svelte';
 
