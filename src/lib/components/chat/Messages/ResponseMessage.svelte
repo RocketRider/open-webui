@@ -2,6 +2,13 @@
 	import { toast } from 'svelte-sonner';
 	import dayjs from 'dayjs';
 
+	import { LangfuseWeb } from "langfuse";
+
+	const langfuseWeb = new LangfuseWeb({
+		publicKey: "pk-lf-1011962c-5f50-4aed-b825-724dd3f9d12a",
+		baseUrl: `http://localhost:3000/`
+	});
+
 	import { createEventDispatcher } from 'svelte';
 	import { onMount, tick, getContext } from 'svelte';
 
@@ -78,6 +85,7 @@
 			usage?: unknown;
 		};
 		annotation?: { type: string; rating: number };
+		metadata?: Record<string, unknown>;
 	}
 
 	export let history;
@@ -119,6 +127,8 @@
 	let generatingImage = false;
 
 	let showRateComment = false;
+
+	let metadata = null;
 
 	const copyToClipboard = async (text) => {
 		const res = await _copyToClipboard(text);
@@ -1087,7 +1097,7 @@
 						<RateComment
 							bind:message
 							bind:show={showRateComment}
-							on:submit={(e) => {
+							on:submit={async (e) => {
 								dispatch('save', {
 									...message,
 									annotation: {
@@ -1111,6 +1121,28 @@
 											}
 										});
 									});
+
+								// Send feedback to Langfuse
+								const traceId = message.metadata?.traceId;
+								if (traceId) {
+									try {
+										const feedbackText = `${e.detail.reason}: ${e.detail.comment}`;
+										await langfuseWeb.score({
+											traceId: traceId,
+											name: "user_feedback_text",
+											value: feedbackText,
+										});
+										await langfuseWeb.score({
+											traceId: traceId,
+											name: "user_feedback_numeric",
+											value: message.annotation?.rating
+										});
+									} catch (error) {
+											console.error("Error sending user feedback to langfuseWeb:", error);
+									}
+								} else {
+									console.warn('No traceId available for text feedback');
+								}
 							}}
 						/>
 					{/if}
