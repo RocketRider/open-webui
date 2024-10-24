@@ -61,13 +61,11 @@ async function* openAIStreamToIterator(
 
 		try {
 			const parsedData = JSON.parse(data);
-			console.log('Received parsed data:', parsedData);
 
 			if (parsedData.error) {
 				yield { done: true, value: '', error: parsedData.error };
 				break;
 			}
-			console.log('Parsed data:', parsedData);
 			if (parsedData.citations) {
 				if (parsedData.metadata) {
 					yield { done: false, value: '', metadata: parsedData.metadata, citations: parsedData.citations };
