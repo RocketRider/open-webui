@@ -7,6 +7,8 @@ type TextStreamUpdate = {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	citations?: any;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	metadata?: any;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	error?: any;
 	usage?: ResponseUsage;
 };
@@ -59,15 +61,19 @@ async function* openAIStreamToIterator(
 
 		try {
 			const parsedData = JSON.parse(data);
-			console.log(parsedData);
+			console.log('Received parsed data:', parsedData);
 
 			if (parsedData.error) {
 				yield { done: true, value: '', error: parsedData.error };
 				break;
 			}
-
+			console.log('Parsed data:', parsedData);
 			if (parsedData.citations) {
-				yield { done: false, value: '', citations: parsedData.citations };
+				if (parsedData.metadata) {
+					yield { done: false, value: '', metadata: parsedData.metadata, citations: parsedData.citations };
+				} else {
+					yield { done: false, value: '', citations: parsedData.citations };
+				}
 				continue;
 			}
 
@@ -91,6 +97,9 @@ async function* streamLargeDeltasAsRandomChunks(
 		if (textStreamUpdate.done) {
 			yield textStreamUpdate;
 			return;
+		}
+		if (textStreamUpdate.metadata) {
+			yield textStreamUpdate;
 		}
 		if (textStreamUpdate.citations) {
 			yield textStreamUpdate;
