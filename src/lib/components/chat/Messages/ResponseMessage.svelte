@@ -128,6 +128,8 @@
 
 	let showRateComment = false;
 
+	let metadata = null;
+
 	const copyToClipboard = async (text) => {
 		const res = await _copyToClipboard(text);
 		if (res) {
@@ -1095,7 +1097,7 @@
 						<RateComment
 							bind:message
 							bind:show={showRateComment}
-							on:submit={(e) => {
+							on:submit={async (e) => {
 								dispatch('save', {
 									...message,
 									annotation: {
@@ -1119,6 +1121,24 @@
 											}
 										});
 									});
+
+								// Send feedback to Langfuse
+								const traceId = message.metadata?.traceId;
+								if (traceId) {
+									try {
+										const feedbackText = `${e.detail.reason}: ${e.detail.comment}`;
+										const score = message.annotation?.rating === 1 ? 1 : 0;
+										await langfuseWeb.score({
+											traceId: traceId,
+											name: "user_feedback_text",
+											value: feedbackText,
+											score: score
+										});
+									} catch (error) {
+									}
+								} else {
+									console.warn('No traceId available for text feedback');
+								}
 							}}
 						/>
 					{/if}
