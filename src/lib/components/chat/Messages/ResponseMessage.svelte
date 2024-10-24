@@ -1138,6 +1138,7 @@
 											value: message.annotation?.rating
 										});
 									} catch (error) {
+											console.error("Error sending user feedback to langfuseWeb:", error);
 									}
 								} else {
 									console.warn('No traceId available for text feedback');
