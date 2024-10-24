@@ -78,6 +78,7 @@
 			usage?: unknown;
 		};
 		annotation?: { type: string; rating: number };
+		metadata?: Record<string, unknown>;
 	}
 
 	export let history;
