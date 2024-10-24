@@ -1132,7 +1132,11 @@
 											traceId: traceId,
 											name: "user_feedback_text",
 											value: feedbackText,
-											score: score
+										});
+										await langfuseWeb.score({
+											traceId: traceId,
+											name: "user_feedback_numeric",
+											value: message.annotation?.rating
 										});
 									} catch (error) {
 									}
