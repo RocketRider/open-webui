@@ -1127,7 +1127,6 @@
 								if (traceId) {
 									try {
 										const feedbackText = `${e.detail.reason}: ${e.detail.comment}`;
-										const score = message.annotation?.rating === 1 ? 1 : 0;
 										await langfuseWeb.score({
 											traceId: traceId,
 											name: "user_feedback_text",
